@@ -28,7 +28,6 @@ export class TeacherRepository implements ITeacherRepository {
       },
       include: {
         branch: true,
-        students: true,
       },
     });
     return createdteacher;

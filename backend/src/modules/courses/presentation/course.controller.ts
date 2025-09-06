@@ -3,7 +3,6 @@ import { CourseRepository } from "../infrastructure/course.prisma.repository";
 import { prisma } from "@/shared/prisma/client";
 import { CreateCourseUseCase } from "../application/create-course";
 import { UpdateCourseUseCase } from "../application/update-course";
-import { CoursesListUseCase } from "../application/courses-list";
 import { DeleteCourseUseCase } from "../application/delete-course";
 
 export class CourseController {

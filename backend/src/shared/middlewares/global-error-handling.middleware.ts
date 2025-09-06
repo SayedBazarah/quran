@@ -2,7 +2,6 @@ import { ErrorRequestHandler } from "express";
 import { CustomError } from "../errors/custom.error";
 import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { ValidationError } from "../errors";
 import { ClientClosedError } from "redis";
 import { NotAuthenticatedError } from "../errors/not-authenticated.error";
 

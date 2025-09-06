@@ -37,7 +37,7 @@ export class AdminController implements IAdminController {
       throw new Error("No files uploaded");
     }
 
-    const { name, email, phone, password, nationalId } = req.body;
+    const { name, email, phone, nationalId } = req.body;
 
     const useCase = new CreateAdminUseCase(this.repo);
 
