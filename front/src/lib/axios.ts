@@ -1,0 +1,94 @@
+import type { AxiosRequestConfig } from 'axios';
+
+import axios from 'axios';
+
+import { CONFIG } from 'src/global-config';
+
+// ----------------------------------------------------------------------
+
+const axiosInstance = axios.create({
+  baseURL: CONFIG.serverUrl,
+  withCredentials: true, // <-- send cookies automatically
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong!')
+);
+
+export default axiosInstance;
+
+// ----------------------------------------------------------------------
+
+export const fetcher = async (args: string | [string, AxiosRequestConfig]) => {
+  try {
+    const [url, config] = Array.isArray(args) ? args : [args];
+
+    const res = await axiosInstance.get(url, { ...config });
+
+    return res.data;
+  } catch (error) {
+    console.error('Failed to fetch:', error);
+    throw error;
+  }
+};
+
+// ----------------------------------------------------------------------
+
+export const endpoints = {
+  auth: {
+    me: '/auth/me',
+    signIn: '/auth/sign-in',
+  },
+  student: {
+    new: '/student/create',
+    parent: '/student/parent',
+    list: '/student/list',
+    update: '/student/update/:id',
+    details: '/student/details/:id',
+    enroll: '/student/enrollment/create/:id', // Single enroll (just one student)
+  },
+  course: {
+    new: '/course/create',
+    list: '/course/list',
+    update: '/course/update/:id',
+    delete: '/course/delete/:id',
+  },
+  round: {
+    new: '/round',
+    list: '/round',
+    update: '/round/:id',
+    details: '/round/:id',
+    bulkEnroll: '/round/bulk-enroll', // Bulk enroll
+  },
+  teacher: {
+    new: '/teacher/create',
+    list: '/teacher/list',
+    update: '/teacher/update/:id',
+    delete: '/teacher/delete/:id',
+    details: '/teacher/details/:id',
+  },
+  admin: {
+    list: '/admin/list',
+    new: '/admin/create',
+    update: '/admin/update/:id',
+    details: '/admin/:id',
+  },
+  role: {
+    list: '/role/list',
+    new: '/role/create',
+    update: '/role/update/:id',
+    details: '/role/:id',
+    permission: '/role/permissions',
+  },
+  branch: {
+    list: '/branch/list',
+    new: '/branch/create',
+    update: '/branch/update/:id',
+    details: '/branch/:id',
+    permission: '/branch/permissions',
+  },
+};

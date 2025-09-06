@@ -1,0 +1,255 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ADMIN & PERMISSIONS MODELS
+// ============================================================================
+model Admin {
+  id                String      @id @default(cuid())
+  name              String
+  email             String?     @unique
+  phone             String      @unique
+  nationalId        String      @unique
+  nationalIdImg     String?
+  username          String      @unique
+  password          String?
+  avatar            String?
+  gender            String?
+
+  // Branch & Student 
+
+  // ✅ Relations
+  role              Role?        @relation(fields: [roleId], references: [id])
+  roleId            String?
+  
+  branch            Branch?      @relation(fields: [branchId], references: [id])  
+  branchId          String?
+
+
+  students    Student[]  @relation("CreatedStudents")  // one-to-many (created students)
+
+  firedStudents Student[] @relation("FiredStudents")   // one-to-many (fired students)
+  
+  payments          Payment[]   // Many-to-many relation with Payment model
+
+  enrollments       Enrollment[] // Many-to-many relation with Course model
+
+
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([id, email, username, phone])
+}
+
+model Role {
+  id                String      @id @default(cuid())
+  name              String      // e.g., "Admin", "User", "Guest"
+  isDefault         Boolean     @default(false)
+
+  
+  // ✅ Relations
+  permissions       Permission[]// Many-to-many relation with Permission model
+  admins            Admin[]      // Many-to-many relation with Admin model
+
+  @@index([name, isDefault])
+}
+
+model Permission {
+  id                String      @id @default(cuid())
+  code              String      @unique // e.g., "create_item", "read_orders", "manage_users"
+  name              String      // Human readable name
+
+  roles             Role[]      // Many-to-many relation with Role model
+
+  @@index(code)
+}
+
+// ============================================================================
+// BRANCHES MODELS
+// ============================================================================
+model Branch {
+  id                String      @id @default(cuid())
+  name              String      @unique
+  
+  address           String?
+  phone             String?
+
+  // ✅ Relations
+  admins            Admin[]      // Many-to-many relation with Admin model
+  teachers          Teacher[]    // Many-to-many relation with Teacher model
+  students          Student[]    // Many-to-many relation with Student model
+  
+
+  @@index([name])
+}
+
+// ============================================================================
+// TEACHER MODELS
+// ============================================================================
+model Teacher {
+  id                String      @id @default(cuid())
+  name              String
+  email             String      @unique
+  phone             String?     @unique
+  nationalId        String      @unique
+  nationalIdImg     String?
+  avatar            String?
+  username          String
+  gender            String?
+  password          String?
+
+  // ✅ Relations
+  branch            Branch?      @relation(fields: [branchId], references: [id])
+  branchId          String
+  
+  enrollments       Enrollment[] // Many-to-many relation with Course model
+
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+
+// ============================================================================
+// STUDENTS & PARENTS MODELS
+// ============================================================================
+model Student {
+  id                String      @id @default(cuid())
+  name              String
+  email             String?     
+  phone             String      @unique
+  nationalId        String      @unique
+  nationalIdImg     String?
+  avatar            String?
+  birthDate         DateTime?
+  gender            String?
+  address           String?
+
+  fired             Boolean     @default(false)
+  firedAt           DateTime?
+  firedBy           Admin? @relation("FiredStudents", fields: [firedById], references: [id])
+  firedById         String?
+  graduated         DateTime?
+
+  // ✅ Relations
+  branch            Branch?      @relation(fields: [branchId], references: [id])
+  branchId          String?
+  
+  parent            Parent?      @relation("ParentToStudent")
+  parentId          String?
+  
+  admin             Admin?      @relation("CreatedStudents", fields: [adminId], references: [id])
+  adminId           String?
+
+  payments          Payment[]    // Many-to-many relation with Payment model
+  enrollments       Enrollment[] // Many-to-many relation with Course model
+
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([nationalId,phone])
+}
+
+model Parent{
+  id                String      @id @default(cuid())
+  name              String
+  email             String?      
+  phone             String     @unique
+  nationalId        String     @unique
+  nationalIdImg     String     
+  birthDate         DateTime?
+  gender            String?
+  relationship      String? // e.g., "Father", "Mother", "Guardian"
+
+  // ✅ Relations
+  // Relation between Parent and Student is one to one relationship
+
+  student           Student?   @relation("ParentToStudent", fields: [studentId], references: [id])
+  studentId         String?    @unique
+
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+}
+
+// ============================================================================
+// ENROLLMENTS & COURSES MODELS
+// ============================================================================
+
+model Course {
+  id                String      @id @default(cuid())
+  name              String
+  duration          Int?        // Duration in days
+  price             Float?      // Course price
+
+  enrollments        Enrollment[]
+
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Enrollment {
+  id                String      @id @default(cuid())
+  status            String      // e.g., "active", "completed", "dropped"
+  startDate         DateTime    @default(now())
+  endDate           DateTime?   // Nullable, if the course is ongoing
+
+  // ✅ Relations
+  course            Course      @relation(fields: [courseId], references: [id])
+  courseId          String
+ 
+  student           Student     @relation(fields: [studentId], references: [id])
+  studentId         String
+
+  teacher           Teacher?    @relation(fields: [teacherId], references: [id])
+  teacherId         String?
+
+  admin             Admin?      @relation(fields: [adminId], references: [id])
+  adminId           String?
+
+  payments          Payment[]   // Many-to-many relation with Payment model
+  
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+// ============================================================================
+// PAYMENTS MODELS
+// ============================================================================
+
+model Payment {
+  id                String      @id @default(cuid())
+  amount            Float
+  handledBy         String?
+
+  // ✅ Relations
+  enrollment       Enrollment  @relation(fields: [enrollmentId], references: [id])
+  enrollmentId     String
+
+  student           Student     @relation(fields: [studentId], references: [id])
+  studentId         String
+
+  admin             Admin?      @relation(fields: [adminId], references: [id])
+  adminId           String?
+
+  // ✅ Timestamps
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
