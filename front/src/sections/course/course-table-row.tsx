@@ -1,4 +1,3 @@
-
 import type { ICourseItem } from 'src/types/course';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
@@ -80,7 +79,14 @@ export function CourseTableRow({
       title="خذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            onDeleteRow();
+            confirmDialog.onFalse();
+          }}
+        >
           حذف
         </Button>
       }
