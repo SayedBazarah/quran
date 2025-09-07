@@ -1,10 +1,10 @@
 import session from "express-session";
 import { RedisStore } from "connect-redis";
 
-import { env } from "@/env";
 import { createClient } from "redis";
 
 import passport from "./";
+import { env } from "../../../env";
 
 // Initialize client.
 const redisClient = createClient();

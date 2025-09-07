@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "start": "node --env-file=.env dist/src/index.js",
+    "build": "tsc && tsc-alias",
+    "start": "node --env-file=.env dist/index.js",
     "dev": "ts-node-dev -r tsconfig-paths/register --respawn --transpile-only src/index.ts .env.development",
-    "build": "tsc",
     "lint": "eslint --fix src test",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
