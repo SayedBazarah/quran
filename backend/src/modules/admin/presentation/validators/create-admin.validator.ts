@@ -4,7 +4,6 @@ import { body } from "express-validator";
 export const createAdminValidator = [
   body("email").isEmail().withMessage("Email is invalid"),
   body("password")
-    .optional()
     .isString()
     .withMessage("Password must be a string")
     .isLength({ min: 6 })

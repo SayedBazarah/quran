@@ -34,6 +34,7 @@ import { CourseTableFiltersResult } from 'src/sections/course/course-table-filte
 
 import { RoleTableRow } from '../role-table-row';
 import { RoleQuickEditForm } from '../role-edit-new-form';
+import axios, { endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -70,12 +71,11 @@ export default function RolesListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      // const deleteRow = courses.filter((row) => row.id !== id);
-
+    async (id: string) => {
+      await axios.delete(endpoints.role.delete.replace(':id', id));
       toast.success('تم المسح بنجاح!');
 
-      // refetch();
+      refetch();
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },

@@ -17,11 +17,7 @@ export const currentUserHandler: RequestHandler = (req, res, next) => {
   res.json(req.user);
 };
 
-export const refreshTokenHandler: RequestHandler = (
-  req: Request,
-  res,
-  next
-) => {
+export const refreshTokenHandler: RequestHandler = (req: Request, res) => {
   try {
     const token = req.session?.refreshToken;
     if (!token) throw new NotAuthenticatedError("Error: not authenticated");

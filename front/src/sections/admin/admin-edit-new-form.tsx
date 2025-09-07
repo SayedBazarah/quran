@@ -236,13 +236,17 @@ export function AdminQuickEditForm({ isNew = true, admin, open, onClose }: Props
               <Field.Phone name="phone" placeholder="رقم الهاتف" defaultCountry="EG" />
             </Stack>
             <Stack direction="row" spacing={2}>
-              <Field.Text name="nationalId" label="رقم البطاقة" />
-              <Field.Text select name="gender" label="الجنس">
+              <Field.Text name="nationalId" label="رقم البطاقة" disabled={!!admin} />
+              <Field.Text select name="gender" label="الجنس" disabled={!!admin}>
                 <MenuItem value="male">رجل</MenuItem>
                 <MenuItem value="female">سيدة</MenuItem>
               </Field.Text>
             </Stack>
-            <Field.Upload name="nationalIdImg" onDrop={handleDropNationalIdImg} />
+            <Field.Upload
+              name="nationalIdImg"
+              onDrop={handleDropNationalIdImg}
+              disabled={!!admin}
+            />
           </Stack>
         </DialogContent>
 

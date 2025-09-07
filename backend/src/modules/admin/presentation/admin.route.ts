@@ -30,5 +30,6 @@ router.patch(
   globalUploadMiddleware().single("avatar"),
   adminController.update
 );
+router.delete("/delete/:id", adminController.delete);
 
 export default router;

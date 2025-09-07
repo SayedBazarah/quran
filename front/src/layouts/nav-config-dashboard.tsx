@@ -73,13 +73,14 @@ export const navData: NavSectionProps['data'] = [
     subheader: 'المسئولين والادوار',
     items: [
       {
-        title: 'المسئولين',
-        path: paths.dashboard.group.root,
+        title: 'قائمة الموظفين',
+        path: paths.dashboard.admin.root,
         icon: ICONS.user,
-        children: [
-          { title: 'قائمة المسئولين', path: paths.dashboard.admin.root },
-          { title: 'الوظائف', path: paths.dashboard.admin.role },
-        ],
+      },
+      {
+        title: 'الوظائف',
+        path: paths.dashboard.admin.role,
+        icon: ICONS.user,
       },
       {
         title: ' الفروع',

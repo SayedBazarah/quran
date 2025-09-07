@@ -33,15 +33,16 @@ export function RoleTableRow({ row, selected, refetch, onSelectRow, onDeleteRow 
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
 
-  const renderQuickEditForm = () => (
-    <RoleQuickEditForm
-      isNew={false}
-      role={row}
-      open={quickEditForm.value}
-      onClose={quickEditForm.onFalse}
-      refetch={refetch}
-    />
-  );
+  const renderQuickEditForm = () =>
+    quickEditForm.value && (
+      <RoleQuickEditForm
+        isNew={false}
+        role={row}
+        open={quickEditForm.value}
+        onClose={quickEditForm.onFalse}
+        refetch={refetch}
+      />
+    );
 
   const renderMenuActions = () => (
     <CustomPopover
@@ -84,7 +85,14 @@ export function RoleTableRow({ row, selected, refetch, onSelectRow, onDeleteRow 
       title="خذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            onDeleteRow();
+            confirmDialog.onFalse();
+          }}
+        >
           حذف
         </Button>
       }

@@ -47,8 +47,10 @@ export class RolePrismaRepository implements IRoleRepository {
     };
   }
 
-  delete(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async delete(id: string): Promise<void> {
+    await this.prisma.role.delete({
+      where: { id },
+    });
   }
 
   findAll(): Promise<{ id: string; name: string; isDefault: boolean }[]> {

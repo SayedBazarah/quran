@@ -34,6 +34,8 @@ import { CourseTableFiltersResult } from 'src/sections/course/course-table-filte
 
 import { AdminTableRow } from '../admin-table-row';
 import { AdminQuickEditForm } from '../admin-edit-new-form';
+import axios, { endpoints } from 'src/lib/axios';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -52,7 +54,7 @@ export default function AdminListView() {
 
   const confirmDialog = useBoolean();
 
-  const { admins } = useGetAdmins();
+  const { admins, refetch } = useGetAdmins();
 
   const filters = useSetState<IAdminTableFilters>({ name: '' });
   const { state: currentFilters } = filters;
@@ -70,14 +72,15 @@ export default function AdminListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
+    async (id: string) => {
+      axios.delete(endpoints.admin.delete.replace(':id', id));
       toast.success('تم المسح بنجاح!');
 
-      // refetch();
+      refetch();
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table]
+    [dataInPage.length, table, refetch]
   );
 
   // const handleDeleteRows = useCallback(() => {

@@ -28,8 +28,10 @@ export class AdminPrismaRepository implements IAdminRepository {
     });
     return res;
   }
-  delete(id: string): Promise<void> {
-    throw new Error("Method not implemented.");
+  async delete(id: string): Promise<void> {
+    await this.prisma.admin.delete({
+      where: { id },
+    });
   }
   findAll(): Promise<Admin[]> {
     return this.prisma.admin.findMany({
@@ -41,7 +43,7 @@ export class AdminPrismaRepository implements IAdminRepository {
   }
   update({ id, roleId, branchId, ...admin }: Admin): Promise<Admin> {
     // Remove role and branch from ...admin to avoid nested objects
-    const { ...adminData } = admin;
+    const { password, ...adminData } = admin;
 
     return new Promise((resolve, reject) => {
       this.prisma.admin
@@ -49,6 +51,7 @@ export class AdminPrismaRepository implements IAdminRepository {
           where: { id },
           data: {
             ...adminData,
+            ...(password && password.length > 0 && { password }),
             ...(roleId ? { role: { connect: { id: roleId } } } : {}),
             ...(branchId ? { branch: { connect: { id: branchId } } } : {}),
           },

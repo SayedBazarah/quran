@@ -81,10 +81,17 @@ export function AdminTableRow({ row, selected, refetch, onSelectRow, onDeleteRow
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="خذف"
+      title="حذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            onDeleteRow();
+            confirmDialog.onFalse();
+          }}
+        >
           حذف
         </Button>
       }

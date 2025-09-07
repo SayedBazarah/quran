@@ -76,11 +76,13 @@ export const endpoints = {
     new: '/admin/create',
     update: '/admin/update/:id',
     details: '/admin/:id',
+    delete: '/admin/delete/:id',
   },
   role: {
     list: '/role/list',
     new: '/role/create',
     update: '/role/update/:id',
+    delete: '/role/delete/:id',
     details: '/role/:id',
     permission: '/role/permissions',
   },

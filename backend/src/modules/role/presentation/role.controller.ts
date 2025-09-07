@@ -4,6 +4,7 @@ import { RolePrismaRepository } from "../infrastructure/role-prisma-repository";
 import { CreateRoleUseCase } from "../application/create-role";
 import { GetRolePermissionsUseCase } from "../application/permissions-list";
 import { UpdateRoleUseCase } from "../application/update-role";
+import { DeleteRoleUseCase } from "../application/delete-role";
 
 // Define the interface
 export interface IRoleController {
@@ -49,5 +50,12 @@ export class RoleController implements IRoleController {
     const useCase = new GetRolePermissionsUseCase(this.repo);
     const permissions = await useCase.execute();
     res.json(permissions);
+  };
+  delete: RequestHandler = async (req, res) => {
+    const useCase = new DeleteRoleUseCase(this.repo);
+
+    await useCase.execute(req.params.id);
+
+    res.json({ message: "Role deleted" });
   };
 }

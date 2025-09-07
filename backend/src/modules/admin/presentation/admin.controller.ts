@@ -6,6 +6,7 @@ import { saveFiles } from "@/shared/utils/file";
 import { hash } from "@/shared/auth/hashing";
 import { env } from "@/env";
 import { UpdateAdminUseCase } from "../application/update-admin";
+import { DeleteAdminUseCase } from "../application/delete-admin";
 
 // Define the interface
 export interface IAdminController {
@@ -37,19 +38,14 @@ export class AdminController implements IAdminController {
       throw new Error("No files uploaded");
     }
 
-    const { name, email, phone, nationalId } = req.body;
-
     const useCase = new CreateAdminUseCase(this.repo);
 
-    const admin = await useCase.execute(
-      `${env.MEDIA_URL}/admin/avatar/${avatar.filename}`,
-      name,
-      email,
-      phone,
-      await hash("sayed"),
-      nationalId,
-      `${env.MEDIA_URL}/admin/ids/${nationalIdImg.filename}`
-    );
+    const admin = await useCase.execute({
+      ...req.body,
+      avatar: `${env.MEDIA_URL}/admin/avatar/${avatar.filename}`,
+      password: await hash(`${req.body.password}`),
+      nationalIdImg: `${env.MEDIA_URL}/admin/ids/${nationalIdImg.filename}`,
+    });
 
     try {
       await saveFiles("/admin/avatar", avatar);
@@ -61,10 +57,6 @@ export class AdminController implements IAdminController {
   };
   update: RequestHandler = async (req, res) => {
     const { id } = req.params;
-    console.log("--- update admin logs ---", {
-      id,
-      body: req.body,
-    });
     const useCase = new UpdateAdminUseCase(this.repo);
 
     const admin = await useCase.execute({
@@ -83,5 +75,12 @@ export class AdminController implements IAdminController {
     }
 
     res.json(admin);
+  };
+  delete: RequestHandler = async (req, res) => {
+    const useCase = new DeleteAdminUseCase(this.repo);
+
+    await useCase.execute(req.params.id);
+
+    res.json({ message: "Admin deleted" });
   };
 }

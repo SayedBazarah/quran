@@ -12,6 +12,11 @@ router.patch(
   validators.updateRoleValidator,
   roleController.update
 );
+router.delete(
+  "/delete/:id",
+  validators.deleteRoleValidator,
+  roleController.delete
+);
 
 router.get("/list", roleController.list);
 router.get("/permissions", roleController.permissionsList);
