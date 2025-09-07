@@ -90,6 +90,7 @@ export const endpoints = {
     list: '/branch/list',
     new: '/branch/create',
     update: '/branch/update/:id',
+    delete: '/branch/delete/:id',
     details: '/branch/:id',
     permission: '/branch/permissions',
   },

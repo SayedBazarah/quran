@@ -3,6 +3,7 @@ import { prisma } from "@/shared/prisma/client";
 import { CreateBranchUseCase } from "../application/create-branch";
 import { UpdateBranchUseCase } from "../application/update-branch";
 import { BranchPrismaRepository } from "../infrastructure/branch-prisma-repository";
+import { DeleteBranchUseCase } from "../application/delete-branch";
 
 // Define the interface
 export interface IBranchController {
@@ -36,5 +37,12 @@ export class BranchController implements IBranchController {
     const role = await useCase.execute(req.params.id, name, phone, address);
 
     res.json(role);
+  };
+  delete: RequestHandler = async (req, res) => {
+    const useCase = new DeleteBranchUseCase(this.repo);
+
+    await useCase.execute(req.params.id);
+
+    res.json({ message: "Branch deleted" });
   };
 }

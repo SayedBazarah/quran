@@ -16,6 +16,11 @@ router.patch(
   validators.updateBranchValidator,
   branchController.update
 );
+router.delete(
+  "/delete/:id",
+  validators.deleteBranchValidator,
+  branchController.delete
+);
 router.get("/list", branchController.list);
 
 export default router;

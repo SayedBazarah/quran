@@ -37,6 +37,7 @@ import { BranchTableRow } from '../branch-table-row';
 import { BranchTableToolbar } from '../branch-table-toolbar';
 import { BranchQuickEditForm } from '../branch-edit-new-form';
 import { BranchTableFiltersResult } from '../branch-table-filters-result';
+import axios, { endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -74,16 +75,15 @@ export default function BranchesListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
-      // const deleteRow = courses.filter((row) => row.id !== id);
-
+    async (id: string) => {
+      await axios.delete(endpoints.branch.delete.replace(':id', id));
       toast.success('تم المسح بنجاح!');
 
-      // refetch();
+      refetch();
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table]
+    [dataInPage.length, table, refetch]
   );
 
   // const handleDeleteRows = useCallback(() => {

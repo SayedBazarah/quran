@@ -84,7 +84,14 @@ export function BranchTableRow({ row, selected, refetch, onSelectRow, onDeleteRo
       title="خذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
-        <Button variant="contained" color="error" onClick={onDeleteRow}>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            onDeleteRow();
+            confirmDialog.onFalse();
+          }}
+        >
           حذف
         </Button>
       }
