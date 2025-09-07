@@ -6,6 +6,7 @@ import { UpdateTeacherUseCase } from "../application/update-teacher";
 import { DeleteTeacherUseCase } from "../application/delete-teacher";
 import { env } from "@/env";
 import { saveFiles } from "@/shared/utils/file";
+import { hash } from "@/shared/auth/hashing";
 
 export class TeacherController {
   private repo: TeacherRepository;
@@ -52,8 +53,18 @@ export class TeacherController {
   update: RequestHandler = async (req, res) => {
     const useCase = new UpdateTeacherUseCase(this.repo);
 
-    const course = await useCase.execute(req.params.id, req.body);
-
+    const course = await useCase.execute(req.params.id, {
+      ...req.body,
+      ...(req.body?.password && {
+        password: await hash(req.body.password as string),
+      }),
+      ...(req.file && {
+        avatar: `${env.MEDIA_URL}/teacher/avatar/${req.file.filename}`,
+      }),
+    });
+    if (req.file) {
+      await saveFiles("teacher/avatar", req.file);
+    }
     res.json(course);
   };
 
