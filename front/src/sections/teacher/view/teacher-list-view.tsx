@@ -41,6 +41,7 @@ import { TeacherTableRow } from '../teacher-table-row';
 import { TeacherTableToolbar } from '../teacher-table-toolbar';
 import { TeacherQuickEditForm } from '../teacher-edit-new-form';
 import { TeacherTableFiltersResult } from '../teacher-table-filters-result';
+import axios, { endpoints } from 'src/lib/axios';
 
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'الاسم' },
@@ -76,7 +77,9 @@ export function TeacherListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleDeleteRow = useCallback(
-    (id: string) => {
+    async (id: string) => {
+      await axios.delete(endpoints.teacher.delete.replace(':id', id));
+
       toast.success('تم المسح بنجاح!');
 
       refetch();

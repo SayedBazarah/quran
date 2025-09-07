@@ -1,4 +1,3 @@
-
 import type { ICourseRounds } from 'src/types/course';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
@@ -91,7 +90,7 @@ export function RoundTableRow({
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="خذف"
+      title="حذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
         <Button variant="contained" color="error" onClick={onDeleteRow}>

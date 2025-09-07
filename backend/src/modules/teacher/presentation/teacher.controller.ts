@@ -50,10 +50,9 @@ export class TeacherController {
   };
 
   update: RequestHandler = async (req, res) => {
-    const { name } = req.body;
     const useCase = new UpdateTeacherUseCase(this.repo);
 
-    const course = await useCase.execute(req.params.id, name);
+    const course = await useCase.execute(req.params.id, req.body);
 
     res.json(course);
   };

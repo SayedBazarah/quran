@@ -1,4 +1,3 @@
-
 import type { ITeacherItem } from 'src/types/teacher';
 
 import { useBoolean, usePopover } from 'minimal-shared/hooks';
@@ -46,15 +45,16 @@ export function TeacherTableRow({
   const confirmDialog = useBoolean();
   const quickEditForm = useBoolean();
 
-  const renderQuickEditForm = () => (
-    <TeacherQuickEditForm
-      isNew={false}
-      teacher={row}
-      open={quickEditForm.value}
-      onClose={quickEditForm.onFalse}
-      refetch={refetch}
-    />
-  );
+  const renderQuickEditForm = () =>
+    quickEditForm.value && (
+      <TeacherQuickEditForm
+        isNew={false}
+        teacher={row}
+        open={quickEditForm.value}
+        onClose={quickEditForm.onFalse}
+        refetch={refetch}
+      />
+    );
 
   const renderMenuActions = () => (
     <CustomPopover
@@ -89,7 +89,7 @@ export function TeacherTableRow({
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="خذف"
+      title="حذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
         <Button variant="contained" color="error" onClick={onDeleteRow}>

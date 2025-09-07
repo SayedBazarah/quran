@@ -81,7 +81,7 @@ export function BranchTableRow({ row, selected, refetch, onSelectRow, onDeleteRo
     <ConfirmDialog
       open={confirmDialog.value}
       onClose={confirmDialog.onFalse}
-      title="خذف"
+      title="حذف"
       content="هل تريد حذف هذا الطالب؟"
       action={
         <Button

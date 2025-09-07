@@ -34,9 +34,13 @@ export class TeacherRepository implements ITeacherRepository {
   }
 
   async update(teacher: Teacher): Promise<Teacher> {
+    const { branchId, ...teacherData } = teacher;
     const updatedTeacher = await this.prisma.teacher.update({
       where: { id: teacher.id },
-      data: teacher,
+      data: {
+        ...teacherData,
+        ...(branchId ? { branch: { connect: { id: branchId } } } : {}),
+      },
     });
     return updatedTeacher;
   }
