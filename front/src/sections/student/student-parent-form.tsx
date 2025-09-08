@@ -92,8 +92,6 @@ export function StudentParentForm({ studentId, parent, refetch }: Props) {
           'Content-Type': 'multipart/form-data',
         },
       });
-      refetch();
-      reset();
     } catch (error) {
       console.error(error);
       const feedbackMessage = getErrorMessage(error);

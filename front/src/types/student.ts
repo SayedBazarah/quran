@@ -10,6 +10,7 @@ export interface IEnrollmentItem {
   course: ICourseItem;
   teacher: ITeacherItem;
   admin: IAdminItem;
+  enrollmentLogs: IEnrollmentLogItem[];
 }
 
 export interface IStudentItem {
@@ -30,6 +31,11 @@ export interface IStudentItem {
   branch: IBranchItem;
   enrollments: IEnrollmentItem[];
   parent: IParentItem;
+  fired: boolean;
+  firedAt: string;
+  firedBy: IAdminItem;
+  graduated: string;
+  enrollmentLogs: IEnrollmentLogItem[];
 }
 
 export interface IStudentTableFilters {
@@ -46,4 +52,13 @@ export interface IParentItem {
   nationalId: string;
   nationalIdImg: string;
   relationship: string;
+}
+
+export interface IEnrollmentLogItem {
+  id: string;
+  student: IStudentItem;
+  enrollment: IEnrollmentItem;
+  admin: IAdminItem;
+  note: string;
+  createdAt: string;
 }

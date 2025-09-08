@@ -11,13 +11,13 @@ import { accessTokenGuard } from "./guards/isAuthenticated";
 
 const router = Router();
 
-router.use("/admin", adminRoutes);
+router.use("/admin", accessTokenGuard, adminRoutes);
 router.use("/auth", authRoutes);
-router.use("/branch", branchRoutes);
-router.use("/course", courseRoutes);
-router.use("/role", roleRoutes);
-router.use("/student", studentRoutes);
-router.use("/teacher", teachereRoutes);
+router.use("/branch", accessTokenGuard, branchRoutes);
+router.use("/course", accessTokenGuard, courseRoutes);
+router.use("/role", accessTokenGuard, roleRoutes);
+router.use("/student", accessTokenGuard, studentRoutes);
+router.use("/teacher", accessTokenGuard, teachereRoutes);
 
 // Health check
 router.get("/check-health", accessTokenGuard, (req, res) => {

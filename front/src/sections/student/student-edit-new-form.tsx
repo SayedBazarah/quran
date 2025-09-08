@@ -24,6 +24,7 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { RHFUploadAvatar } from 'src/components/hook-form/rhf-upload';
 
 import { getErrorMessage } from 'src/auth/utils';
+import { useGetAdmins } from 'src/actions/admin';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +47,7 @@ export const StudentQuickEditSchema = zod.object({
     },
   }),
   address: zod.string().min(1, { message: 'العنوان مطلوب!' }),
+  adminhId: zod.string().min(1, { message: 'الفرع مطلوب!' }),
   branchId: zod.string().min(1, { message: 'الفرع مطلوب!' }),
   nationalId: zod.string().min(1, { message: 'رقم الهوية مطلوب !' }).length(14, {
     message: 'رقم الهوية يجب ان يكون 14 رقم!',
@@ -74,6 +76,7 @@ export function StudentQuickEditForm({
   open,
   onClose,
 }: Props) {
+  const { admins } = useGetAdmins();
   const { branches } = useGetBranches();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -87,6 +90,7 @@ export function StudentQuickEditForm({
     branchId: currentStudent?.branch?.id || '',
     nationalIdImg: currentStudent?.nationalIdImg || '',
     avatar: currentStudent?.avatar || '',
+    adminhId: currentStudent?.admin?.id || '',
   };
 
   const methods = useForm<StudentQuickEditSchemaType>({
@@ -138,7 +142,27 @@ export function StudentQuickEditForm({
         <Field.Text name="address" label="العنوان" />
       </Stack>
       <Stack direction="row" spacing={2}>
+        <Field.Text select name="branchId" label="الفرع">
+          {branches.map((r) => (
+            <MenuItem key={r.id} value={r.id}>
+              {r.name}
+            </MenuItem>
+          ))}
+        </Field.Text>
+        <Field.Text select name="adminhId" label="مسئول الطالب">
+          {admins.map((r) => (
+            <MenuItem key={r.id} value={r.id}>
+              {r.name}
+            </MenuItem>
+          ))}
+        </Field.Text>
+      </Stack>
+      <Stack direction="row" spacing={2}>
         <Field.Text name="nationalId" label="رقم الهوية" />
+        <Field.Text select name="gender" label="النوع">
+          <MenuItem value="male">رجل</MenuItem>
+          <MenuItem value="female">سيدة</MenuItem>
+        </Field.Text>
         <Controller
           name="birthDate"
           control={control}
@@ -159,19 +183,6 @@ export function StudentQuickEditForm({
             />
           )}
         />
-      </Stack>
-      <Stack direction="row" spacing={2}>
-        <Field.Text select name="branchId" label="الفرع">
-          {branches.map((r) => (
-            <MenuItem key={r.id} value={r.id}>
-              {r.name}
-            </MenuItem>
-          ))}
-        </Field.Text>
-        <Field.Text select name="gender" label="النوع">
-          <MenuItem value="male">رجل</MenuItem>
-          <MenuItem value="female">سيدة</MenuItem>
-        </Field.Text>
       </Stack>
       <Field.Upload name="nationalIdImg" />
     </Stack>

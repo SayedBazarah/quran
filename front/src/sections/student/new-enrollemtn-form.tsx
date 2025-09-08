@@ -18,6 +18,7 @@ import { useGetTeachers } from 'src/actions/teacher';
 import { Form, Field } from 'src/components/hook-form';
 
 import { getErrorMessage } from 'src/auth/utils';
+import { mutate } from 'swr';
 
 // ----------------------------------------------------------------------
 
@@ -65,6 +66,7 @@ export function NewEnrollmentForm({ studentId, open, onClose }: Props) {
     try {
       await axios.post(endpoints.student.enroll.replace(':id', studentId), data);
       reset();
+      mutate(endpoints.student.details.replace(':id', studentId));
       onClose();
     } catch (error) {
       console.error(error);

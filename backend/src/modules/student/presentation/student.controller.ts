@@ -8,6 +8,8 @@ import { UpdateStudentUseCase } from "../application/update-student";
 import { StudentsDetailsUseCase } from "../application/get-student-details";
 import { CreateUpdateParentUseCase } from "../application/create-update-parent";
 import { CreateEnrollmentUseCase } from "../application/create-enrollment";
+import { CreateEnrollmentLogUseCase } from "../application/create-log";
+import { UpdateEnrollmentUseCase } from "../application/update-enrollment";
 
 // Define the interface
 export interface IAdminController {
@@ -63,6 +65,15 @@ export class AdminController implements IAdminController {
 
     res.json(student);
   };
+  createEnrollmentLog: RequestHandler = async (req, res) => {
+    const useCase = new CreateEnrollmentLogUseCase(this.repo);
+    const { id } = req.params;
+    const adminId = req.user?.id as string;
+    const { enrollmentId, note } = req.body;
+    await useCase.execute(id, enrollmentId, adminId, note);
+
+    res.json({ message: "Enrollment log created successfully" });
+  };
 
   create: RequestHandler = async (req, res) => {
     const files = req.files as unknown as {
@@ -110,5 +121,17 @@ export class AdminController implements IAdminController {
     }
 
     res.json(admin);
+  };
+
+  updateEnrollment: RequestHandler = async (req, res) => {
+    const { id } = req.params;
+    const useCase = new UpdateEnrollmentUseCase(this.repo);
+
+    await useCase.execute({
+      id,
+      ...req.body,
+    });
+
+    res.json({ message: "Enrollment updated successfully" });
   };
 }

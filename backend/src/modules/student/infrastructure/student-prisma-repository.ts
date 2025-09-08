@@ -21,12 +21,18 @@ export class StudentPrismaRepository implements IStudentRepository {
             course: true,
             admin: true,
             teacher: true,
+            enrollmentLogs: {
+              include: {
+                admin: true,
+              },
+            },
           },
         },
         parent: true,
       },
     });
   }
+
   async isEnrollmentRegisted(
     studentId: string,
     courseId: string
@@ -60,6 +66,30 @@ export class StudentPrismaRepository implements IStudentRepository {
       create: { ...parent },
     });
   }
+
+  async createEnrollmentLog(
+    studentId: string,
+    enrollmentId: string,
+    adminId: string,
+    note: string
+  ): Promise<Boolean> {
+    // Create a Log
+    await this.prisma.enrollmentLog.create({
+      data: {
+        studentId,
+        enrollmentId,
+        adminId,
+        note,
+      },
+      include: {
+        student: true,
+        enrollment: true,
+        admin: true,
+      },
+    });
+
+    return true;
+  }
   async create(
     student: Omit<
       Student,
@@ -72,10 +102,11 @@ export class StudentPrismaRepository implements IStudentRepository {
       | "enrollments"
     > & { branchId?: string }
   ): Promise<Student> {
-    const { branchId, ...studentData } = student;
+    const { branchId, adminId, ...studentData } = student;
     const res = await this.prisma.student.create({
       data: {
         ...studentData,
+        ...(adminId ? { adminId } : {}),
         ...(branchId ? { branchId } : {}), // use branchId instead of branch.connect
       },
       include: {
@@ -100,20 +131,48 @@ export class StudentPrismaRepository implements IStudentRepository {
     });
   }
 
-  update({ id, branchId, ...student }: Student): Promise<Student> {
+  update({ id, adminId, branchId, ...student }: Student): Promise<Student> {
     // Remove branch from ...student to avoid nested objects
-    const { ...studentData } = student;
-
     return this.prisma.student.update({
       where: { id },
       data: {
-        ...studentData,
+        ...student,
+        ...(branchId ? { branchId } : {}), // use branchId instead of branch.connect
+        ...(adminId ? { adminId } : {}), // use adminId instead of admin.connect
       },
       include: {
         branch: true,
         admin: true,
         enrollments: true,
       },
+    });
+  }
+  updateEnrollment({
+    id,
+    teacherId,
+    adminId,
+    ...enrollment
+  }: Partial<Enrollment>): Promise<Boolean> {
+    return new Promise((resolve, reject) => {
+      this.prisma.enrollment
+        .update({
+          where: { id },
+          data: {
+            ...enrollment,
+            ...(teacherId ? { teacherId } : {}),
+            ...(adminId ? { adminId } : {}),
+          },
+          include: {
+            admin: true,
+            teacher: true,
+          },
+        })
+        .then(() => {
+          resolve(true);
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 }

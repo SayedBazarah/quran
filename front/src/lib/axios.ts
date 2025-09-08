@@ -50,6 +50,8 @@ export const endpoints = {
     update: '/student/update/:id',
     details: '/student/details/:id',
     enroll: '/student/enrollment/create/:id', // Single enroll (just one student)
+    updateEnroll: '/student/enrollment/update/:id', // Single enroll (just one student)
+    enrollLog: '/student/enrollment/log/:id', // Single enroll (just one student)
   },
   course: {
     new: '/course/create',

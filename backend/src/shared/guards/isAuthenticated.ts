@@ -6,11 +6,7 @@ export const accessTokenGuard = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log("--- Logs ---", {
-    session: req.session,
-    user: req.user,
-  });
-  if (!req.session) {
+  if (!req.isAuthenticated()) {
     throw new NotAuthenticatedError("Error: not authenticated");
   }
   return next();

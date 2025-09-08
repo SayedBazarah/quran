@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------
 
-export function getErrorMessage(error: unknown): string {
+export function getErrorMessage(error: any): string {
   if (error instanceof Error) {
     return error.message || error.name || 'An error occurred';
   }
@@ -19,5 +19,9 @@ export function getErrorMessage(error: unknown): string {
     }
   }
 
+  if (error?.errors && error?.errors[0]?.message) {
+    return error?.errors[0]?.message;
+  }
+  console.log(error?.errors?.[0].message);
   return `Unknown error: ${error}`;
 }

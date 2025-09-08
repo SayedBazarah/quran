@@ -44,5 +44,16 @@ router.post(
   validators.createEnrollmentValidator,
   adminController.createEnrollment
 );
+router.post(
+  "/enrollment/log/:id",
+
+  validators.createEnrollmentLogValidator,
+  adminController.createEnrollmentLog
+);
+router.patch(
+  "/enrollment/update/:id",
+  validators.updateEnrollmentValidator,
+  adminController.updateEnrollment
+);
 
 export default router;

@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { Card, Alert, Stack, Button, MenuItem, Typography } from '@mui/material';
+import { Card, Alert, Stack, Button, MenuItem, Typography, Box } from '@mui/material';
 
 import { appendFormData } from 'src/utils/append-form-data';
 
@@ -44,10 +44,14 @@ export const StudentQuickEditSchema = zod.object({
   }),
   address: zod.string().min(1, { message: 'العنوان مطلوب!' }),
   adminId: zod.string().min(1, { message: 'اسم مسئول الطالب مطلوب!' }),
+  branchId: zod.string().min(1, { message: 'اسم مسئول الطالب مطلوب!' }),
   nationalId: zod.string().min(1, { message: 'رقم الهوية مطلوب !' }).length(14, {
     message: 'رقم الهوية يجب ان يكون 14 رقم!',
   }),
   avatar: schemaHelper.file({
+    message: 'الصورة غير صحيحة!',
+  }),
+  nationalIdImg: schemaHelper.file({
     message: 'الصورة غير صحيحة!',
   }),
 });
@@ -63,6 +67,7 @@ export default function StudentDetails({ student, refetch }: Props) {
   const { branches } = useGetBranches();
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const defaultValues: StudentQuickEditSchemaType = {
     name: student?.name,
     phone: student?.phone,
@@ -72,6 +77,8 @@ export default function StudentDetails({ student, refetch }: Props) {
     nationalId: student?.nationalId,
     avatar: student?.avatar,
     adminId: student?.admin?.id,
+    nationalIdImg: student.nationalIdImg,
+    branchId: student?.branch?.id,
   };
   const methods = useForm<StudentQuickEditSchemaType>({
     mode: 'all',
@@ -82,11 +89,13 @@ export default function StudentDetails({ student, refetch }: Props) {
   const {
     handleSubmit,
     control,
+    watch,
     formState: { isSubmitting },
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      console.log(data);
       const formData = new FormData();
       appendFormData(formData, data);
       await axios.patch(endpoints.student.update.replace(':id', student.id), formData, {
@@ -112,7 +121,29 @@ export default function StudentDetails({ student, refetch }: Props) {
         <Field.Text name="address" label="العنوان" />
       </Stack>
       <Stack direction="row" spacing={2}>
-        <Field.Text name="nationalId" label="رقم الهوية" />
+        <Field.Text select name="branchId" label="الفرع">
+          {branches.map((r) => (
+            <MenuItem key={r.id} value={r.id}>
+              {r.name}
+            </MenuItem>
+          ))}
+        </Field.Text>
+        <Field.Text select name="adminId" label="مسئول الطالب">
+          {admins.map((r) => (
+            <MenuItem key={r.id} value={r.id}>
+              {r.name}
+            </MenuItem>
+          ))}
+        </Field.Text>
+      </Stack>
+      <Box
+        gridTemplateColumns={{
+          xs: 'repeat(1, 1fr)',
+          sm: 'repeat(3, 1fr)',
+        }}
+        sx={{ display: 'grid', gap: 2 }}
+      >
+        <Field.Text name="nationalId" label="رقم الهوية" disabled />
         <Controller
           name="birthDate"
           control={control}
@@ -130,30 +161,19 @@ export default function StudentDetails({ student, refetch }: Props) {
                   helperText: error?.message,
                 },
               }}
+              disabled
             />
           )}
         />
-      </Stack>
-      <Stack direction="row" spacing={2}>
-        <Field.Text select name="branchId" label="الفرع">
-          {branches.map((r) => (
-            <MenuItem key={r.id} value={r.id}>
-              {r.name}
-            </MenuItem>
-          ))}
+        <Field.Text select name="gender" label="النوع" disabled>
+          <MenuItem value="male">ولد</MenuItem>
+          <MenuItem value="female">بنت</MenuItem>
         </Field.Text>
-        <Field.Text select name="gender" label="النوع">
-          <MenuItem value="male">رجل</MenuItem>
-          <MenuItem value="female">سيدة</MenuItem>
-        </Field.Text>
-        <Field.Text select name="adminId" label="مسئول الطالب">
-          {admins.map((r) => (
-            <MenuItem key={r.id} value={r.id}>
-              {r.name}
-            </MenuItem>
-          ))}
-        </Field.Text>
-      </Stack>
+      </Box>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        صورة البطاقة/شهادة الميلاد
+      </Typography>
+      <Field.Upload name="nationalIdImg" disabled />
     </Stack>
   );
   // ----------------------------------------------------------------------
@@ -171,18 +191,6 @@ export default function StudentDetails({ student, refetch }: Props) {
           تحديث
         </Button>
       </Form>
-      <Card sx={{ mt: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          صورة البطاقة/شهادة الميلاد
-        </Typography>
-        <Image
-          alt="nationalIdImg"
-          src={student?.nationalIdImg}
-          sx={{
-            width: '100%',
-          }}
-        />
-      </Card>
     </>
   );
 }

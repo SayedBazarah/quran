@@ -37,6 +37,7 @@ model Admin {
   branch            Branch?      @relation(fields: [branchId], references: [id])  
   branchId          String?
 
+  enrollmentLogs    EnrollmentLog[] // Many-to-many relation with EnrollmentLog model
 
   students    Student[]  @relation("CreatedStudents")  // one-to-many (created students)
 
@@ -154,6 +155,7 @@ model Student {
   admin             Admin?      @relation("CreatedStudents", fields: [adminId], references: [id])
   adminId           String?
 
+  enrollmentLogs    EnrollmentLog[] // Many-to-many relation with EnrollmentLog model
   payments          Payment[]    // Many-to-many relation with Payment model
   enrollments       Enrollment[] // Many-to-many relation with Course model
 
@@ -223,13 +225,31 @@ model Enrollment {
   admin             Admin?      @relation(fields: [adminId], references: [id])
   adminId           String?
 
+  enrollmentLogs    EnrollmentLog[] // Many-to-many relation with EnrollmentLog model
+
   payments          Payment[]   // Many-to-many relation with Payment model
   
+
   // ✅ Timestamps
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 }
 
+model EnrollmentLog {
+  id                String      @id @default(cuid())
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  note              String?
+  
+  student           Student     @relation(fields: [studentId], references: [id])
+  studentId         String
+
+  enrollment            Enrollment      @relation(fields: [enrollmentId], references: [id])
+  enrollmentId          String
+
+  admin             Admin       @relation(fields: [adminId], references: [id])
+  adminId           String
+}
 // ============================================================================
 // PAYMENTS MODELS
 // ============================================================================

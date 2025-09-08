@@ -28,26 +28,26 @@ export default function StudentEnrollments({ student }: Props) {
             </Box>
           </Stack>
           {student.enrollments?.map((item) => (
-              <Stack
-                key={item.id}
-                direction="row"
-                justifyContent="space-between"
-                sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, pb: 1.5 }}
-              >
-                <Box>{item.course?.name}</Box>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => {
-                      setEnrollment(item);
-                    }}
-                  >
-                    عرض بيانات الدورة
-                  </Button>
-                </Box>
-              </Stack>
-            ))}
+            <Stack
+              key={item.id}
+              direction="row"
+              justifyContent="space-between"
+              sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}`, pb: 1.5 }}
+            >
+              <Box>{item.course?.name}</Box>
+              <Box display="flex" alignItems="center" gap={1}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setEnrollment(item);
+                  }}
+                >
+                  عرض بيانات الدورة
+                </Button>
+              </Box>
+            </Stack>
+          ))}
         </Stack>
       </Scrollbar>
       {newEnrollment.value && (
@@ -59,6 +59,7 @@ export default function StudentEnrollments({ student }: Props) {
       )}
       {enrollment && (
         <EnrollmentEditForm
+          studentId={student.id}
           open={!!enrollment}
           onClose={() => setEnrollment(null)}
           enrollment={enrollment}
