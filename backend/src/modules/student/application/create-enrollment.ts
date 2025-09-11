@@ -16,6 +16,12 @@ export class CreateEnrollmentUseCase {
       throw new BadRequestError("الطالب مسجل مسبقاً بهذه الدورة");
     }
 
+    const hasActiveEnrollment = await this.repo.findActiveEnrollment(
+      enrollment.studentId as string
+    );
+    if (hasActiveEnrollment) {
+      throw new BadRequestError("الطالب لدية دورة غير منتهية");
+    }
     // Create a new admin
     const newEnrollment = await this.repo.createEnrollment(enrollment);
 

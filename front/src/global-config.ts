@@ -115,4 +115,6 @@ export enum GlobalPermissionCode {
   ReadRole = 'read-role',
   DeleteRole = 'delete-role',
   UpdateRole = 'update-role',
+  AcceptStudent = 'accept-student',
+  AcceptEnrollment = 'accept-enrollment',
 }

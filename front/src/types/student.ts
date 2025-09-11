@@ -11,6 +11,7 @@ export interface IEnrollmentItem {
   teacher: ITeacherItem;
   admin: IAdminItem;
   enrollmentLogs: IEnrollmentLogItem[];
+  student: IStudentItem;
 }
 
 export interface IStudentItem {
@@ -40,6 +41,8 @@ export interface IStudentItem {
 
 export interface IStudentTableFilters {
   name: string;
+  teacher: string[];
+  admin: string[];
 }
 
 export interface IParentItem {
@@ -62,3 +65,22 @@ export interface IEnrollmentLogItem {
   note: string;
   createdAt: string;
 }
+export enum EnrollmentStatus {
+  pending = 'pending',
+  active = 'active',
+  late = 'late',
+  dropout = 'dropout',
+  end = 'end',
+}
+
+export type EnrollmentStatusType = keyof typeof EnrollmentStatus;
+
+// I want value to be the key of the enum
+
+export const EnrollmentStatusList = [
+  { value: EnrollmentStatus.pending, label: 'بنتظار القبول' },
+  { value: EnrollmentStatus.dropout, label: 'انقطع' },
+  { value: EnrollmentStatus.late, label: 'متأخر' },
+  { value: EnrollmentStatus.end, label: 'انتهي من الدورة' },
+  { value: EnrollmentStatus.active, label: 'يدرس' }, // default
+];

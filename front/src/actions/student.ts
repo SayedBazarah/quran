@@ -1,5 +1,5 @@
 import type { SWRConfiguration } from 'swr';
-import type { IStudentItem } from 'src/types/student';
+import type { IStudentItem, IEnrollmentItem } from 'src/types/student';
 
 import useSWR, { mutate } from 'swr';
 import { useMemo, useCallback } from 'react';
@@ -59,6 +59,30 @@ export function useGetStudentById(id: string) {
       studentError: error,
       studentValidating: isValidating,
       studentEmpty: !isLoading && !isValidating && !data,
+      refetch: refetchData,
+    }),
+    [data, error, isLoading, isValidating, refetchData]
+  );
+  return memoizedValue;
+}
+export function useGetPendingEnrollments() {
+  const url = endpoints.student.pendingEnrollments;
+
+  const { data, isLoading, error, isValidating } = useSWR<IEnrollmentItem[]>(url, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
+
+  const refetchData = useCallback(() => {
+    mutate(url); // This will re-fetch the data from the same URL
+  }, [url]);
+  const memoizedValue = useMemo(
+    () => ({
+      enrollment: data as IEnrollmentItem[],
+      enrollmentLoading: isLoading,
+      enrollmentError: error,
+      enrollmentValidating: isValidating,
+      enrollmentEmpty: !isLoading && !isValidating && !data,
       refetch: refetchData,
     }),
     [data, error, isLoading, isValidating, refetchData]

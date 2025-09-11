@@ -1,39 +1,30 @@
-import type { IEnrollmentItem } from 'src/types/student';
-
 import * as zod from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import {
-  Box,
-  Card,
-  Stack,
-  Alert,
-  Divider,
-  MenuItem,
-  TextField,
-  IconButton,
-  Typography,
-} from '@mui/material';
+import { Box, Card, Stack, Alert, Divider, MenuItem, IconButton, Typography } from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
-import { appendFormData } from 'src/utils/append-form-data';
 
 import axios, { endpoints } from 'src/lib/axios';
 import { useGetAdmins } from 'src/actions/admin';
 import { useGetTeachers } from 'src/actions/teacher';
 
 import { Iconify } from 'src/components/iconify';
-import { Form, Field, schemaHelper } from 'src/components/hook-form';
+import { Form, Field } from 'src/components/hook-form';
 
 import { getErrorMessage } from 'src/auth/utils';
-import { useRouter } from 'next/navigation';
-import { mutate } from 'swr';
+
+import { EnrollmentStatusList, type IEnrollmentItem } from 'src/types/student';
+
+import { CreateEnrollmentLogForm } from './create-note-form';
 // import { mutate } from 'swr';\\\
 
 // ----------------------------------------------------------------------
@@ -45,6 +36,7 @@ export const StudentQuickEditSchema = zod.object({
   adminId: zod.string().min(1, { message: 'المشرف مطلوب!' }),
   status: zod.string(),
   startDate: zod.string(),
+  endDate: zod.string(),
   course: zod.string().min(1, { message: 'الدورة مطلوب!' }),
 });
 // ----------------------------------------------------------------------
@@ -52,36 +44,35 @@ export const StudentQuickEditSchema = zod.object({
 type Props = {
   open: boolean;
   onClose: () => void;
+  onEndEnrollment: () => void;
   studentId: string;
   enrollment: IEnrollmentItem;
+  error: string | null;
 };
 
-enum EnrollmentStatus {
-  started = 'active',
-  dropout = 'dropout',
-  ended = 'ended',
-}
-
-const StatusList = [
-  { value: EnrollmentStatus.started, label: 'يدرس الدورة' },
-  { value: EnrollmentStatus.dropout, label: 'منقطع عن الدورة' },
-  { value: EnrollmentStatus.ended, label: 'انتهي من الدورة' },
-];
-export function EnrollmentEditForm({ studentId, enrollment, open, onClose }: Props) {
+export function EnrollmentEditForm({
+  studentId,
+  enrollment,
+  open,
+  onEndEnrollment,
+  onClose,
+  error,
+}: Props) {
   const router = useRouter();
   const { admins } = useGetAdmins();
   const { teachers } = useGetTeachers();
-  const [note, setNote] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const logsForm = useBoolean();
 
   const defaultValues: StudentQuickEditSchemaType = {
     teacherId: enrollment.teacher?.id,
     adminId: enrollment.admin?.id,
     status: enrollment.status,
     startDate: fDate(enrollment.startDate),
+    endDate: fDate(enrollment.endDate),
     course: enrollment.course?.name,
   };
-
   const methods = useForm<StudentQuickEditSchemaType>({
     mode: 'all',
     resolver: zodResolver(StudentQuickEditSchema),
@@ -89,48 +80,31 @@ export function EnrollmentEditForm({ studentId, enrollment, open, onClose }: Pro
   });
 
   const {
-    reset,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = methods;
 
-  console.log(errors);
   const onSubmit = handleSubmit(async (data) => {
     try {
-      console.log('DATA');
-      console.log(data);
       await axios.patch(endpoints.student.updateEnroll.replace(':id', enrollment?.id), data);
       router.refresh();
       onClose();
-    } catch (error) {
-      console.error(error);
-      const feedbackMessage = getErrorMessage(error);
+    } catch (e) {
+      console.error(e);
+      const feedbackMessage = getErrorMessage(e);
       setErrorMessage(feedbackMessage);
     }
   });
-
-  const handleCreatingNote = async () => {
-    try {
-      await axios.post(endpoints.student.enrollLog.replace(':id', studentId), {
-        note: note,
-        enrollmentId: enrollment?.id,
-      });
-      mutate(endpoints.student.details.replace(':id', studentId));
-      router.refresh();
-      onClose();
-    } catch (error) {
-      console.error(error);
-      const feedbackMessage = getErrorMessage(error);
-      setErrorMessage(feedbackMessage);
-    }
-  };
   // ----------------------------------------
   const renderStudentForm = () => (
     <Stack direction="column" spacing={2}>
       <Field.Text name="course" label="الدورة" disabled />
-      <Field.Text name="startDate" label="تريخ بداية الدورة" disabled />
-      <Field.Text select name="status" label="حالة الدورة">
-        {StatusList.map((r) => (
+      <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
+        <Field.Text name="startDate" label="تاريخ بداية الدورة" disabled />
+        <Field.Text name="endDate" label="تاريخ انتهاء الدورة" disabled />
+      </Stack>
+      <Field.Text select name="status" label="حالة الدورة" disabled>
+        {EnrollmentStatusList.map((r) => (
           <MenuItem key={r.value} value={r.value}>
             {r.label}
           </MenuItem>
@@ -152,7 +126,7 @@ export function EnrollmentEditForm({ studentId, enrollment, open, onClose }: Pro
       </Field.Text>
       {!enrollment.endDate && (
         <Stack direction="row" justifyContent="flex-end" gap={1}>
-          <Button variant="outlined" color="error" onClick={onClose}>
+          <Button variant="outlined" color="error" type="button" onClick={onEndEnrollment}>
             انهاء الدورة
           </Button>
           <Button type="submit" variant="contained" loading={isSubmitting}>
@@ -160,28 +134,17 @@ export function EnrollmentEditForm({ studentId, enrollment, open, onClose }: Pro
           </Button>
         </Stack>
       )}
-      <Divider sx={{ my: 2 }} />
-      <Stack direction="column" spacing={2}>
-        <Typography variant="h6">كتابة ملاحظات الدورة</Typography>
-        <TextField
-          fullWidth
-          multiline
-          type="text"
-          label="اكتب ملاحظة"
-          onChange={(value) => setNote(value.target.value)}
-          name="notes"
-          rows={2}
-        />
-        <Button color="primary" variant="contained" fullWidth onClick={handleCreatingNote}>
-          اضافة ملاحظة
-        </Button>
-      </Stack>
     </Stack>
   );
 
   const renderNotes = () => (
     <Stack direction="column" spacing={2}>
-      <Typography variant="h6">ملاحظات الدورة</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
+        <Typography variant="h6">ملاحظات الدورة</Typography>
+        <Button variant="contained" color="primary" onClick={logsForm.onTrue}>
+          اضافة ملاحظة
+        </Button>
+      </Stack>
       {enrollment.enrollmentLogs?.map((item) => (
         <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', p: 2 }}>
           <Box>
@@ -223,6 +186,11 @@ export function EnrollmentEditForm({ studentId, enrollment, open, onClose }: Pro
         </Stack>
       </DialogTitle>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
       {errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {errorMessage}
@@ -230,13 +198,32 @@ export function EnrollmentEditForm({ studentId, enrollment, open, onClose }: Pro
       )}
       <Form methods={methods} onSubmit={onSubmit}>
         <DialogContent>
-          <Box sx={{ my: 2, display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: 2 }}>
+          <Box
+            sx={{
+              my: 2,
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: 'repeat(1, 1fr)',
+                sm: '1fr auto 1fr',
+              },
+              gap: 2,
+            }}
+          >
             <Box>{renderStudentForm()}</Box>
             <Divider orientation="vertical" flexItem />
             <Box>{renderNotes()}</Box>
           </Box>
         </DialogContent>
       </Form>
+      <CreateEnrollmentLogForm
+        open={logsForm.value}
+        onClose={() => {
+          logsForm.onFalse();
+          onClose();
+        }}
+        studentId={studentId}
+        enrollmentId={enrollment.id}
+      />
     </Dialog>
   );
 }

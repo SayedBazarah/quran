@@ -19,7 +19,7 @@ router.post(
 router.get("/me", accessTokenGuard, currentUserHandler);
 
 // Logout
-router.get("/logout", (req, res) => {
+router.get("/sign-out", (req, res) => {
   req.logout((err) => {
     if (err) return res.status(500).json({ error: "Logout failed" });
     res.json({ message: "Logged out" });

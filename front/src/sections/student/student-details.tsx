@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'react-phone-number-input';
 
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { Card, Alert, Stack, Button, MenuItem, Typography, Box } from '@mui/material';
+import { Box, Alert, Stack, Button, MenuItem, Typography } from '@mui/material';
 
 import { appendFormData } from 'src/utils/append-form-data';
 
@@ -16,7 +16,6 @@ import axios, { endpoints } from 'src/lib/axios';
 import { useGetAdmins } from 'src/actions/admin';
 import { useGetBranches } from 'src/actions/branch';
 
-import { Image } from 'src/components/image';
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { RHFUploadAvatar } from 'src/components/hook-form/rhf-upload';
 
@@ -89,7 +88,6 @@ export default function StudentDetails({ student, refetch }: Props) {
   const {
     handleSubmit,
     control,
-    watch,
     formState: { isSubmitting },
   } = methods;
 

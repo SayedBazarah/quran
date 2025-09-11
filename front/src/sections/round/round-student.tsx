@@ -1,9 +1,6 @@
 import type { ICourseRounds } from 'src/types/course';
 
-import { Box, Stack, Button } from '@mui/material';
-
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
+import { Stack } from '@mui/material';
 
 import { Scrollbar } from 'src/components/scrollbar';
 

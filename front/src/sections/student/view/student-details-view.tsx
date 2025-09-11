@@ -9,10 +9,16 @@ import { RouterLink } from 'src/routes/components';
 
 import { useGetStudentById } from 'src/actions/student';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { GlobalPermissionCode } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+
+import { NotFoundView } from 'src/sections/error';
+
+import { RoleBasedGuard } from 'src/auth/guard';
+import { useAuthContext } from 'src/auth/hooks';
 
 import StudentDetails from '../student-details';
 import { StudentParentForm } from '../student-parent-form';
@@ -47,6 +53,7 @@ const NAV_ITEMS = [
 const TAB_PARAM = 'tab';
 
 export function StudentDetailsView({ id }: Props) {
+  const { user } = useAuthContext();
   const { student, studentLoading, refetch } = useGetStudentById(id);
 
   const theme = useTheme();
@@ -60,6 +67,7 @@ export function StudentDetailsView({ id }: Props) {
   };
 
   if (studentLoading) return <LoadingScreen />;
+  if (!student) return <NotFoundView />;
   return (
     <DashboardContent>
       <CustomBreadcrumbs
@@ -71,38 +79,47 @@ export function StudentDetailsView({ id }: Props) {
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-      <Card sx={{ p: 3 }}>
-        <Box
-          sx={{
-            width: 1,
-            bottom: 0,
-            zIndex: 9,
-            px: { md: 2 },
-            mb: 3,
-            bgcolor: 'background.paper',
-            borderBottom: `1px solid ${theme.palette.divider}`,
-          }}
-        >
-          <Tabs value={selectedTab}>
-            {NAV_ITEMS.map((tab) => (
-              <Tab
-                component={RouterLink}
-                key={tab.value}
-                value={tab.value}
-                icon={tab.icon}
-                label={tab.label}
-                href={createRedirectPath(pathname, tab.value)}
-              />
-            ))}
-          </Tabs>
-        </Box>
+      <RoleBasedGuard
+        hasContent
+        currentRole={user?.role?.permissions?.map((p) => p.code) || []}
+        allowedRoles={[GlobalPermissionCode.UpdateStudent]}
+        sx={{
+          marginY: 'auto',
+        }}
+      >
+        <Card sx={{ p: 3 }}>
+          <Box
+            sx={{
+              width: 1,
+              bottom: 0,
+              zIndex: 9,
+              px: { md: 2 },
+              mb: 3,
+              bgcolor: 'background.paper',
+              borderBottom: `1px solid ${theme.palette.divider}`,
+            }}
+          >
+            <Tabs value={selectedTab}>
+              {NAV_ITEMS.map((tab) => (
+                <Tab
+                  component={RouterLink}
+                  key={tab.value}
+                  value={tab.value}
+                  icon={tab.icon}
+                  label={tab.label}
+                  href={createRedirectPath(pathname, tab.value)}
+                />
+              ))}
+            </Tabs>
+          </Box>
 
-        {selectedTab === '' && <StudentDetails refetch={refetch} student={student} />}
-        {selectedTab === 'parent' && (
-          <StudentParentForm refetch={refetch} studentId={student.id} parent={student.parent} />
-        )}
-        {selectedTab === 'enrollments' && <StudentEnrollments student={student} />}
-      </Card>
+          {selectedTab === '' && <StudentDetails refetch={refetch} student={student} />}
+          {selectedTab === 'parent' && (
+            <StudentParentForm refetch={refetch} studentId={student.id} parent={student.parent} />
+          )}
+          {selectedTab === 'enrollments' && <StudentEnrollments student={student} />}
+        </Card>
+      </RoleBasedGuard>
     </DashboardContent>
   );
 }

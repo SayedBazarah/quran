@@ -11,6 +11,7 @@ import { Box, Card, Table, Button, Tooltip, TableBody, IconButton } from '@mui/m
 import { paths } from 'src/routes/paths';
 
 import { useGetAdmins } from 'src/actions/admin';
+import axios, { endpoints } from 'src/lib/axios';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
@@ -34,8 +35,6 @@ import { CourseTableFiltersResult } from 'src/sections/course/course-table-filte
 
 import { AdminTableRow } from '../admin-table-row';
 import { AdminQuickEditForm } from '../admin-edit-new-form';
-import axios, { endpoints } from 'src/lib/axios';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 

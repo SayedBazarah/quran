@@ -99,6 +99,8 @@ export function StudentTableRow({
     />
   );
 
+  console.log(row.enrollments[0]);
+
   return (
     <>
       <TableRow hover selected={selected} aria-checked={selected} tabIndex={-1}>
@@ -136,7 +138,6 @@ export function StudentTableRow({
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.admin?.name || '-'}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.teacher?.name || '-'}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {row.enrollments[0]?.course?.name || '-'}
         </TableCell>

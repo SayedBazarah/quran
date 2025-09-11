@@ -1,16 +1,17 @@
-import type { IRoleItem, IBranchItem } from 'src/types/admin';
+import type { IRoleItem, IAdminItem, IBranchItem } from 'src/types/admin';
 
 export type UserType = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   username: string;
+  avatar: string;
   role: IRoleItem;
   branch: IBranchItem;
 } | null;
 
 export type AuthState = {
-  user: UserType;
+  user: IAdminItem | null;
   loading: boolean;
 };
 

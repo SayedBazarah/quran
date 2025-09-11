@@ -1,11 +1,20 @@
+import type {
+  SelectChangeEvent} from '@mui/material';
 import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { IStudentTableFilters } from 'src/types/student';
 
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import {
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  OutlinedInput
+} from '@mui/material';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -14,11 +23,16 @@ import { Iconify } from 'src/components/iconify';
 type Props = {
   onResetPage: () => void;
   filters: UseSetStateReturn<IStudentTableFilters>;
-  options: {};
+  options: {
+    admins: { value: string; label: string }[];
+    teachers: { value: string; label: string }[];
+  };
 };
 
 export function StudentTableToolbar({ filters, options, onResetPage }: Props) {
   const { state: currentFilters, setState: updateFilters } = filters;
+
+  const [admin, setAdmin] = useState(currentFilters.admin);
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +41,18 @@ export function StudentTableToolbar({ filters, options, onResetPage }: Props) {
     },
     [onResetPage, updateFilters]
   );
+
+  const handleChangeAdmin = useCallback((event: SelectChangeEvent<string[]>) => {
+    const {
+      target: { value },
+    } = event;
+
+    setAdmin(typeof value === 'string' ? value.split(',') : value);
+  }, []);
+
+  const handleFilterAdmin = useCallback(() => {
+    updateFilters({ admin });
+  }, [updateFilters, admin]);
 
   return (
     <Box
@@ -39,6 +65,24 @@ export function StudentTableToolbar({ filters, options, onResetPage }: Props) {
         alignItems: { xs: 'flex-end', md: 'center' },
       }}
     >
+      <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
+        <InputLabel htmlFor="filter-role-select">المشرف</InputLabel>
+        <Select
+          multiple
+          value={admin}
+          onChange={handleChangeAdmin}
+          onClose={handleFilterAdmin}
+          input={<OutlinedInput label="Stock" />}
+          inputProps={{ id: 'filter-stock-select' }}
+          sx={{ textTransform: 'capitalize' }}
+        >
+          {options.admins.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <Box
         sx={{
           gap: 2,

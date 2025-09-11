@@ -8,3 +8,5 @@ export * from "./create-enrollment.validator";
 export * from "./create-enrollment-log.validator";
 
 export * from "./update-enrollment.validator";
+export * from "./close-enrollment.validator";
+export * from "./accept-enrollment.validator";

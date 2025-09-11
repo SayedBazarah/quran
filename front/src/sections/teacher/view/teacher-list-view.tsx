@@ -2,7 +2,6 @@
 
 // ----------------------------------------------------------------------
 
-import type { IStudentTableFilters } from 'src/types/student';
 import type { TableHeadCellProps } from 'src/components/table';
 import type { ITeacherItem, ITeacherTableFilters } from 'src/types/teacher';
 
@@ -13,6 +12,7 @@ import { Box, Card, Table, Button, Tooltip, TableBody, IconButton } from '@mui/m
 
 import { paths } from 'src/routes/paths';
 
+import axios, { endpoints } from 'src/lib/axios';
 import { useGetTeachers } from 'src/actions/teacher';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { GlobalPermissionCode } from 'src/global-config';
@@ -41,7 +41,6 @@ import { TeacherTableRow } from '../teacher-table-row';
 import { TeacherTableToolbar } from '../teacher-table-toolbar';
 import { TeacherQuickEditForm } from '../teacher-edit-new-form';
 import { TeacherTableFiltersResult } from '../teacher-table-filters-result';
-import axios, { endpoints } from 'src/lib/axios';
 
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'الاسم' },
@@ -61,7 +60,7 @@ export function TeacherListView() {
   const confirmDialog = useBoolean();
 
   const { teachers, refetch } = useGetTeachers();
-  const filters = useSetState<IStudentTableFilters>({ name: '' });
+  const filters = useSetState<ITeacherTableFilters>({ name: '' });
   const { state: currentFilters } = filters;
 
   const dataFiltered = applyFilter({

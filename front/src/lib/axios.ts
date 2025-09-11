@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import { CONFIG } from 'src/global-config';
 
+
 // ----------------------------------------------------------------------
 
 const axiosInstance = axios.create({
@@ -42,6 +43,7 @@ export const endpoints = {
   auth: {
     me: '/auth/me',
     signIn: '/auth/sign-in',
+    signOut: '/auth/sign-out',
   },
   student: {
     new: '/student/create',
@@ -52,6 +54,9 @@ export const endpoints = {
     enroll: '/student/enrollment/create/:id', // Single enroll (just one student)
     updateEnroll: '/student/enrollment/update/:id', // Single enroll (just one student)
     enrollLog: '/student/enrollment/log/:id', // Single enroll (just one student)
+    closeEnrollment: '/student/enrollment/close/:id', // Single enroll (just one student)
+    pendingEnrollments: '/student/enrollment/pending',
+    acceptEnrollment: '/student/enrollment/accept/:id',
   },
   course: {
     new: '/course/create',

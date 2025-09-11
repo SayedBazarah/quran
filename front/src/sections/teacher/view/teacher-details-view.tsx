@@ -14,7 +14,6 @@ import { Iconify } from 'src/components/iconify';
 import { LoadingScreen } from 'src/components/loading-screen';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import TeacherRounds from '../teacher-rounds';
 import TeacherDetails from '../teacher-details';
 
 type Props = {

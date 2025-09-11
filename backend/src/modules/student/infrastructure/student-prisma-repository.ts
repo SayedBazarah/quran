@@ -1,8 +1,27 @@
-import { Enrollment, Parent, PrismaClient, Student } from "@prisma/client";
+import {
+  Enrollment,
+  EnrollmentStatus,
+  Parent,
+  PrismaClient,
+  Student,
+} from "@prisma/client";
 import { IStudentRepository } from "../domain/student-repository";
 
 export class StudentPrismaRepository implements IStudentRepository {
   constructor(private prisma: PrismaClient) {}
+
+  findActiveEnrollment(studentId: string): Promise<Enrollment | null> {
+    return this.prisma.enrollment.findFirst({
+      where: {
+        studentId,
+        status: "active",
+      },
+      include: {
+        course: true,
+        admin: true,
+      },
+    });
+  }
 
   findByPhone(phone: string): Promise<Student | null> {
     return this.prisma.student.findUnique({
@@ -34,22 +53,40 @@ export class StudentPrismaRepository implements IStudentRepository {
   }
 
   async isEnrollmentRegisted(
-    studentId: string,
-    courseId: string
-  ): Promise<boolean> {
-    const enrollment = await this.prisma.enrollment.findFirst({
+    id: string,
+    studentId: string
+  ): Promise<Enrollment | null> {
+    console.log("isEnrollmentRegisted", { id, studentId });
+    return await this.prisma.enrollment.findFirst({
       where: {
+        id,
         studentId,
-        courseId,
       },
     });
-
-    return !!enrollment;
+  }
+  async pendingEnrollments(): Promise<Enrollment[]> {
+    return await this.prisma.enrollment.findMany({
+      where: { status: EnrollmentStatus.pending },
+      include: {
+        student: true,
+      },
+    });
+  }
+  async acceptEnrollment(id: string): Promise<Boolean> {
+    return !!(await this.prisma.enrollment.update({
+      where: { id },
+      data: {
+        status: EnrollmentStatus.active,
+      },
+    }));
   }
 
   async createEnrollment(data: Enrollment): Promise<Enrollment> {
     return this.prisma.enrollment.create({
-      data,
+      data: {
+        ...data,
+        status: EnrollmentStatus.pending,
+      },
       include: {
         student: true,
         course: true,
@@ -117,6 +154,24 @@ export class StudentPrismaRepository implements IStudentRepository {
     return res;
   }
 
+  closeEnrollment(enrollmentId: string): Promise<Boolean> {
+    return new Promise((resolve, reject) => {
+      this.prisma.enrollment
+        .update({
+          where: { id: enrollmentId },
+          data: {
+            status: EnrollmentStatus.end,
+            endDate: new Date(),
+          },
+        })
+        .then(() => {
+          resolve(true);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
   delete(id: string): Promise<void> {
     throw new Error("Method not implemented.");
   }
@@ -126,7 +181,15 @@ export class StudentPrismaRepository implements IStudentRepository {
       include: {
         branch: true,
         admin: true,
-        enrollments: true,
+        enrollments: {
+          where: {
+            status: "active",
+          },
+          include: {
+            course: true,
+            admin: true,
+          },
+        },
       },
     });
   }

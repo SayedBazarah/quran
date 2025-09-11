@@ -14,6 +14,7 @@ import { paths } from 'src/routes/paths';
 
 import { useGetStudents } from 'src/actions/student';
 import { DashboardContent } from 'src/layouts/dashboard';
+import { GlobalPermissionCode } from 'src/global-config';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -33,6 +34,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 
+import { RoleBasedGuard } from 'src/auth/guard';
+import { useAuthContext } from 'src/auth/hooks';
+
 import { StudentTableRow } from '../student-table-row';
 import { StudentTableToolbar } from '../student-table-toolbar';
 import { StudentQuickEditForm } from '../student-edit-new-form';
@@ -41,7 +45,6 @@ import { StudentTableFiltersResult } from '../student-table-filters-result';
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'الاسم' },
   { id: 'phone', label: 'المشرف' },
-  { id: 'age', label: 'المدرس' },
   { id: 'rounds', label: 'المراحل الحالية', width: 150 },
   { id: '', width: 88 },
 ];
@@ -49,6 +52,7 @@ const TABLE_HEAD: TableHeadCellProps[] = [
 // ----------------------------------------------------------------------
 
 export function StudentListView() {
+  const { user } = useAuthContext();
   const isNew = useBoolean();
   const table = useTable({
     defaultRowsPerPage: 25,
@@ -57,7 +61,7 @@ export function StudentListView() {
   const confirmDialog = useBoolean();
 
   const { students, refetch, studentsLoading } = useGetStudents();
-  const filters = useSetState<IStudentTableFilters>({ name: '' });
+  const filters = useSetState<IStudentTableFilters>({ name: '', teacher: [], admin: [] });
   const { state: currentFilters } = filters;
 
   const dataFiltered = applyFilter({
@@ -66,6 +70,26 @@ export function StudentListView() {
     filters: currentFilters,
   });
 
+  const admins = [
+    ...new Map(
+      students
+        .filter((student) => student.admin) // keep only students with admins
+        .map((student) => [
+          student.admin.id,
+          { value: student.admin.id, label: student.admin.name },
+        ])
+    ).values(),
+  ];
+  const teachers = [
+    ...new Map(
+      students
+        .filter((student) => student.teacher) // keep only students with admins
+        .map((student) => [
+          student.teacher.id,
+          { value: student.teacher.id, label: student.admin.name },
+        ])
+    ).values(),
+  ];
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset = !!currentFilters.name;
@@ -143,94 +167,110 @@ export function StudentListView() {
           sx={{ mb: { xs: 3, md: 5 } }}
         />
 
-        <Card>
-          <StudentTableToolbar filters={filters} onResetPage={table.onResetPage} options={{}} />
-
-          {canReset && (
-            <StudentTableFiltersResult
+        <RoleBasedGuard
+          hasContent
+          currentRole={user?.role?.permissions?.map((p) => p.code) || []}
+          allowedRoles={[GlobalPermissionCode.ReadStudent]}
+          sx={{
+            marginY: 'auto',
+          }}
+        >
+          <Card>
+            <StudentTableToolbar
               filters={filters}
-              totalResults={dataFiltered.length}
               onResetPage={table.onResetPage}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <Box sx={{ position: 'relative' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={dataFiltered.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  dataFiltered.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="مسح">
-                  <IconButton color="primary" onClick={confirmDialog.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
+              options={{
+                admins,
+                teachers,
+              }}
             />
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headCells={TABLE_HEAD}
-                  rowCount={dataFiltered.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      dataFiltered.map((row) => row.id)
-                    )
-                  }
-                />
+            {canReset && (
+              <StudentTableFiltersResult
+                filters={filters}
+                totalResults={dataFiltered.length}
+                onResetPage={table.onResetPage}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <StudentTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        refetch={refetch}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        editHref={paths.dashboard.student.details.replace(':id', row.id)}
-                      />
-                    ))}
+            <Box sx={{ position: 'relative' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={dataFiltered.length}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    dataFiltered.map((row) => row.id)
+                  )
+                }
+                action={
+                  <Tooltip title="مسح">
+                    <IconButton color="primary" onClick={confirmDialog.onTrue}>
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
+                }
+              />
 
-                  <TableEmptyRows
-                    height={table.dense ? 56 : 56 + 20}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+              <Scrollbar>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headCells={TABLE_HEAD}
+                    rowCount={dataFiltered.length}
+                    numSelected={table.selected.length}
+                    onSort={table.onSort}
+                    onSelectAllRows={(checked) =>
+                      table.onSelectAllRows(
+                        checked,
+                        dataFiltered.map((row) => row.id)
+                      )
+                    }
                   />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </Box>
+                  <TableBody>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <StudentTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          refetch={refetch}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          editHref={paths.dashboard.student.details.replace(':id', row.id)}
+                        />
+                      ))}
 
-          <TablePaginationCustom
-            page={table.page}
-            dense={table.dense}
-            count={dataFiltered.length}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onChangeDense={table.onChangeDense}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-          />
-        </Card>
+                    <TableEmptyRows
+                      height={table.dense ? 56 : 56 + 20}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, dataFiltered.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </Box>
+
+            <TablePaginationCustom
+              page={table.page}
+              dense={table.dense}
+              count={dataFiltered.length}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onChangeDense={table.onChangeDense}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+            />
+          </Card>
+        </RoleBasedGuard>
       </DashboardContent>
 
       {isNew.value && (
@@ -250,9 +290,7 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
-  console.log('inputData');
-  console.log(inputData);
-  const { name } = filters;
+  const { name, teacher, admin } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
@@ -264,9 +302,17 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
+  if (admin.length) {
+    inputData = inputData.filter((user) => admin.includes(user.admin?.id));
+  }
+
+  if (teacher.length) {
+    inputData = inputData.filter((user) => admin.includes(user.admin?.id));
+  }
+
   if (name) {
-    inputData = inputData.filter((course) =>
-      course.name.toLowerCase().includes(name.toLowerCase())
+    inputData = inputData.filter((student) =>
+      student.name.toLowerCase().includes(name.toLowerCase())
     );
   }
 

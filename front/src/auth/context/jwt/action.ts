@@ -70,6 +70,7 @@ export const signUp = async ({
  *************************************** */
 export const signOut = async (): Promise<void> => {
   try {
+    await axios.get(endpoints.auth.signOut);
     await setSession(null);
   } catch (error) {
     console.error('Error during sign out:', error);

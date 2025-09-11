@@ -20,12 +20,12 @@ export const currentUserHandler: RequestHandler = (req, res, next) => {
 export const refreshTokenHandler: RequestHandler = (req: Request, res) => {
   try {
     const token = req.session?.refreshToken;
-    if (!token) throw new NotAuthenticatedError("Error: not authenticated");
+    if (!token) throw new NotAuthenticatedError("يرجي تسجيل الدخول");
     const payload = TokenService.verifyRefreshToken(token);
     const { accessToken } = TokenService.generateTokens(payload);
     req.session.accessToken = accessToken;
     res.json({ accessToken });
   } catch (err) {
-    throw new NotAuthenticatedError("Error: not authenticated");
+    throw new NotAuthenticatedError("يرجي تسجيل الدخول");
   }
 };

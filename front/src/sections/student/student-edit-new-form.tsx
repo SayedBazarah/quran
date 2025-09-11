@@ -18,13 +18,13 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { appendFormData } from 'src/utils/append-form-data';
 
 import axios, { endpoints } from 'src/lib/axios';
+import { useGetAdmins } from 'src/actions/admin';
 import { useGetBranches } from 'src/actions/branch';
 
 import { Form, Field, schemaHelper } from 'src/components/hook-form';
 import { RHFUploadAvatar } from 'src/components/hook-form/rhf-upload';
 
 import { getErrorMessage } from 'src/auth/utils';
-import { useGetAdmins } from 'src/actions/admin';
 
 // ----------------------------------------------------------------------
 

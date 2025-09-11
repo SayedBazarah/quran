@@ -39,6 +39,12 @@ router.patch(
 );
 
 // Enrollment
+router.get("/enrollment/pending", adminController.pendingEnrollments);
+router.post(
+  "/enrollment/accept/:id",
+  validators.acceptEnrollmentValidator,
+  adminController.acceptEnrollment
+);
 router.post(
   "/enrollment/create/:id",
   validators.createEnrollmentValidator,
@@ -49,6 +55,12 @@ router.post(
 
   validators.createEnrollmentLogValidator,
   adminController.createEnrollmentLog
+);
+router.post(
+  "/enrollment/close/:id",
+
+  validators.closeEnrollmentValidator,
+  adminController.closeEnrollment
 );
 router.patch(
   "/enrollment/update/:id",

@@ -10,6 +10,9 @@ import { CreateUpdateParentUseCase } from "../application/create-update-parent";
 import { CreateEnrollmentUseCase } from "../application/create-enrollment";
 import { CreateEnrollmentLogUseCase } from "../application/create-log";
 import { UpdateEnrollmentUseCase } from "../application/update-enrollment";
+import { CloseEnrollmentUseCase } from "../application/close-enrollment";
+import { AcceptEnrollmentUseCase } from "../application/accept-enrollment";
+import { PendingEnrollmentsUseCase } from "../application/pending-enrollments";
 
 // Define the interface
 export interface IAdminController {
@@ -133,5 +136,26 @@ export class AdminController implements IAdminController {
     });
 
     res.json({ message: "Enrollment updated successfully" });
+  };
+  closeEnrollment: RequestHandler = async (req, res) => {
+    const useCase = new CloseEnrollmentUseCase(this.repo);
+
+    await useCase.execute(req.body.enrollmentId, req.params.id);
+
+    res.json({ message: "Enrollment closed successfully" });
+  };
+  acceptEnrollment: RequestHandler = async (req, res) => {
+    const useCase = new AcceptEnrollmentUseCase(this.repo);
+
+    await useCase.execute(req.params.id);
+
+    res.json({ message: "Enrollment accepted successfully" });
+  };
+  pendingEnrollments: RequestHandler = async (req, res) => {
+    const useCase = new PendingEnrollmentsUseCase(this.repo);
+
+    const enrollments = await useCase.execute();
+
+    res.json(enrollments);
   };
 }

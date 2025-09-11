@@ -8,7 +8,7 @@ export const refreshAccessToken = (
   const session = req.session;
 
   if (!session) {
-    return res.status(401).json({ message: "Session expired" });
+    return res.status(401).json({ message: "انتهت صلاحية الجلسة" });
   }
 
   next();

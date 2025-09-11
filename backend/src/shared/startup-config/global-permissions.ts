@@ -29,6 +29,8 @@ export enum GlobalPermissionCode {
   ReadRole = "read-role",
   DeleteRole = "delete-role",
   UpdateRole = "update-role",
+  AcceptStudent = "accept-student",
+  AcceptEnrollment = "accept-enrollment",
 }
 
 export const GLOBAL_PERMISSIONS = [
@@ -135,6 +137,14 @@ export const GLOBAL_PERMISSIONS = [
   {
     name: "تحديث وظيفة",
     code: GlobalPermissionCode.UpdateRole,
+  },
+  {
+    name: "قبول طالب",
+    code: GlobalPermissionCode.AcceptStudent,
+  },
+  {
+    name: "قبول دورة",
+    code: GlobalPermissionCode.AcceptEnrollment,
   },
 ];
 

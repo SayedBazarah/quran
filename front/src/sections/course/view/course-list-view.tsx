@@ -12,6 +12,7 @@ import { Box, Card, Table, Button, Tooltip, TableBody, IconButton } from '@mui/m
 
 import { paths } from 'src/routes/paths';
 
+import axios, { endpoints } from 'src/lib/axios';
 import { useGetCourses } from 'src/actions/course';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { GlobalPermissionCode } from 'src/global-config';
@@ -40,7 +41,6 @@ import { CourseTableRow } from '../course-table-row';
 import { CourseTableToolbar } from '../course-table-toolbar';
 import { CourseQuickEditForm } from '../course-edit-new-form';
 import { CourseTableFiltersResult } from '../course-table-filters-result';
-import axios, { endpoints } from 'src/lib/axios';
 
 const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'الاسم' },

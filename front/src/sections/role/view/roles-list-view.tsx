@@ -11,6 +11,7 @@ import { Box, Card, Table, Button, Tooltip, TableBody, IconButton } from '@mui/m
 import { paths } from 'src/routes/paths';
 
 import { useGetRoles } from 'src/actions/role';
+import axios, { endpoints } from 'src/lib/axios';
 import { DashboardContent } from 'src/layouts/dashboard';
 
 import { toast } from 'src/components/snackbar';
@@ -34,7 +35,6 @@ import { CourseTableFiltersResult } from 'src/sections/course/course-table-filte
 
 import { RoleTableRow } from '../role-table-row';
 import { RoleQuickEditForm } from '../role-edit-new-form';
-import axios, { endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -79,7 +79,7 @@ export default function RolesListView() {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table]
+    [dataInPage.length, refetch, table]
   );
 
   // const handleDeleteRows = useCallback(() => {

@@ -77,7 +77,6 @@ export function StudentParentForm({ studentId, parent, refetch }: Props) {
   });
 
   const {
-    reset,
     handleSubmit,
     control,
     formState: { isSubmitting },

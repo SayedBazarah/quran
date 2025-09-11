@@ -8,5 +8,5 @@ export const ensureAuthenticated = (
   if (req.isAuthenticated()) {
     return next();
   }
-  res.status(401).json({ message: "Unauthorized" });
+  res.status(401).json({ message: "غير مصرح به الدخول" });
 };

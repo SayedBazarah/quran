@@ -1,4 +1,5 @@
 import * as zod from 'zod';
+import { mutate } from 'swr';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,7 +19,6 @@ import { useGetTeachers } from 'src/actions/teacher';
 import { Form, Field } from 'src/components/hook-form';
 
 import { getErrorMessage } from 'src/auth/utils';
-import { mutate } from 'swr';
 
 // ----------------------------------------------------------------------
 

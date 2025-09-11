@@ -20,8 +20,6 @@ passport.deserializeUser(async (id: string, done) => {
         branch: true,
       },
     });
-    console.log("deserializeUser");
-    console.log(admin);
     if (admin) {
       // Ensure email is a string, not null
       const user = {

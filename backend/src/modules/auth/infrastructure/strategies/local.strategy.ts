@@ -14,7 +14,9 @@ export const localStrategy = new LocalStrategy(
     });
 
     if (!admin || !(await compare(password, `${admin.password}`))) {
-      return done(null, false, { message: "Invalid credentials" });
+      return done(null, false, {
+        message: "اسم المستخدم أو كلمة المرور غير صحيح",
+      });
     }
 
     return done(null, { ...admin, email: admin.email ?? "" });

@@ -1,4 +1,3 @@
-import { Permission } from "@prisma/client";
 import { IRoleRepository } from "../domain/role-repository";
 
 export class DeleteRoleUseCase {
